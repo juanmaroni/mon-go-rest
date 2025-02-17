@@ -4,10 +4,12 @@ import (
 	"context"
 	"errors"
 	"fmt"
+	"time"
 
 	"go.mongodb.org/mongo-driver/v2/bson"
 	"go.mongodb.org/mongo-driver/v2/mongo"
 	"go.mongodb.org/mongo-driver/v2/mongo/options"
+	"go.mongodb.org/mongo-driver/v2/mongo/readpref"
 )
 
 type MongoConnection struct {
@@ -23,11 +25,22 @@ type MongoConnection struct {
 func NewConnection(dbName, collectionName string) MongoConnection {
 	const LocalhostUri string = "mongodb://localhost:27017"
 
-	client, err := mongo.Connect(options.Client().ApplyURI(LocalhostUri))
+	// Set client options
+	opts := options.Client()
+	opts.ApplyURI(LocalhostUri)
+    opts.SetConnectTimeout(1 * time.Second)
+	
+	client, err := mongo.Connect(opts)
 
 	if err != nil {
-		panic(fmt.Sprintf("Error: couldn't connect to '%s' found.", LocalhostUri)) // Log
+		panic(fmt.Sprintf("Error: couldn't connect to host '%s'.", LocalhostUri)) // Log
 	}
+    
+	if err = client.Ping(context.TODO(), readpref.Primary()); err != nil {
+        panic(fmt.Sprintf("Error: couldn't connect to host '%s'.", LocalhostUri)) // Log
+    }
+
+	fmt.Println("Connected to MongoDB.") // Log
 
 	db, err := getDatabase(*client, dbName)
 
@@ -35,13 +48,15 @@ func NewConnection(dbName, collectionName string) MongoConnection {
 		panic(err) // Log
 	}
 
+	fmt.Printf("Connected to database '%s'.\n", dbName) // Log
+
 	collection, err := getCollection(*db, collectionName)
 
 	if err != nil {
 		panic(err) // Log
 	}
 
-	fmt.Println("Connected") // Log
+	fmt.Printf("Connected to collection '%s'.\n", collectionName) // Log
 
 	return MongoConnection {
 		Client: client,
