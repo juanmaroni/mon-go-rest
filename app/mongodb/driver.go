@@ -20,24 +20,21 @@ type MongoConnection struct {
 }
 
 // TODO: Pass context as parameter
-// TODO: Pass Host URI as parameter
 // TODO: Logs
-func NewConnection(dbName, collectionName string) MongoConnection {
-	const LocalhostUri string = "mongodb://localhost:27017"
-
+func NewConnection(dbHostUri, dbName, collectionName string) MongoConnection {
 	// Set client options
 	opts := options.Client()
-	opts.ApplyURI(LocalhostUri)
+	opts.ApplyURI(dbHostUri)
     opts.SetConnectTimeout(1 * time.Second)
 	
 	client, err := mongo.Connect(opts)
 
 	if err != nil {
-		panic(fmt.Sprintf("Error: couldn't connect to host '%s'.", LocalhostUri)) // Log
+		panic(fmt.Sprintf("Error: couldn't connect to host '%s'.", dbHostUri)) // Log
 	}
     
 	if err = client.Ping(context.TODO(), readpref.Primary()); err != nil {
-        panic(fmt.Sprintf("Error: couldn't connect to host '%s'.", LocalhostUri)) // Log
+        panic(fmt.Sprintf("Error: couldn't connect to host '%s'.", dbHostUri)) // Log
     }
 
 	fmt.Println("Connected to MongoDB.") // Log
