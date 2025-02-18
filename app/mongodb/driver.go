@@ -25,6 +25,7 @@ func NewConnection(dbHostUri, dbName, collectionName string) MongoConnection {
 	// Set client options
 	opts := options.Client()
 	opts.ApplyURI(dbHostUri)
+	opts.SetServerSelectionTimeout(1 * time.Second)
     opts.SetConnectTimeout(1 * time.Second)
 	
 	client, err := mongo.Connect(opts)
@@ -34,7 +35,7 @@ func NewConnection(dbHostUri, dbName, collectionName string) MongoConnection {
 	}
     
 	if err = client.Ping(context.TODO(), readpref.Primary()); err != nil {
-        panic(fmt.Sprintf("Error: couldn't connect to host '%s'.", dbHostUri)) // Log
+        panic(fmt.Sprintf("Error: unreachable host '%s'.", dbHostUri)) // Log
     }
 
 	fmt.Println("Connected to MongoDB.") // Log
