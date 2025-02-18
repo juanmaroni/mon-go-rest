@@ -19,9 +19,8 @@ type MongoConnection struct {
 	Connected bool
 }
 
-// TODO: Pass context as parameter
 // TODO: Logs
-func NewConnection(dbHostUri, dbName, collectionName string) MongoConnection {
+func NewConnection(ctx context.Context, dbHostUri, dbName, collectionName string) MongoConnection {
 	// Set client options
 	opts := options.Client()
 	opts.ApplyURI(dbHostUri)
@@ -34,7 +33,7 @@ func NewConnection(dbHostUri, dbName, collectionName string) MongoConnection {
 		panic(fmt.Sprintf("Error: couldn't connect to host '%s'.", dbHostUri)) // Log
 	}
     
-	if err = client.Ping(context.TODO(), readpref.Primary()); err != nil {
+	if err = client.Ping(ctx, readpref.Primary()); err != nil {
         panic(fmt.Sprintf("Error: unreachable host '%s'.", dbHostUri)) // Log
     }
 
