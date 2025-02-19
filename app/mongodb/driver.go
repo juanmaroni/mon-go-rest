@@ -72,6 +72,31 @@ func (conn *MongoConnection) CloseConnection() {
 	fmt.Println(conn.Connected) // Log
 }
 
+func GetRecordById[T interface{}](ctx context.Context, coll mongo.Collection, idField string, value int) (T, error) {
+	var record T
+
+	if err := coll.FindOne(ctx, bson.D{{Key: idField, Value: value}}).Decode(&record); err != nil {
+		return record, err
+	}
+
+	return record, nil
+}
+
+func GetAllRecords[T interface{}](ctx context.Context, coll mongo.Collection) ([]T, error) {
+	var records []T
+	cursor, err := coll.Find(ctx, bson.D{{}})
+
+	if err != nil {
+		return nil, err
+	}
+
+	if err = cursor.All(ctx, &records); err != nil {
+		return nil, err
+	}
+
+	return records, nil
+}
+
 func getDatabase(client mongo.Client, dbName string) (*mongo.Database, error) {
 	dbList, err := client.ListDatabaseNames(context.TODO(), bson.M{"name": dbName})
 
