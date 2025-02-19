@@ -39,7 +39,7 @@ func NewConnection(ctx context.Context, dbHostUri, dbName, collectionName string
 
 	fmt.Println("Connected to MongoDB.") // Log
 
-	db, err := getDatabase(*client, dbName)
+	db, err := getDatabase(ctx, *client, dbName)
 
 	if err != nil {
 		panic(err) // Log
@@ -47,7 +47,7 @@ func NewConnection(ctx context.Context, dbHostUri, dbName, collectionName string
 
 	fmt.Printf("Connected to database '%s'.\n", dbName) // Log
 
-	collection, err := getCollection(*db, collectionName)
+	collection, err := getCollection(ctx, *db, collectionName)
 
 	if err != nil {
 		panic(err) // Log
@@ -63,8 +63,8 @@ func NewConnection(ctx context.Context, dbHostUri, dbName, collectionName string
 	}
 }
 
-func (conn *MongoConnection) CloseConnection() {
-	if err := conn.Client.Disconnect(context.TODO()); err != nil {
+func (conn *MongoConnection) CloseConnection(ctx context.Context) {
+	if err := conn.Client.Disconnect(ctx); err != nil {
 		panic(err) // Log
 	}
 
@@ -97,8 +97,8 @@ func GetAllRecords[T interface{}](ctx context.Context, coll mongo.Collection) ([
 	return records, nil
 }
 
-func getDatabase(client mongo.Client, dbName string) (*mongo.Database, error) {
-	dbList, err := client.ListDatabaseNames(context.TODO(), bson.M{"name": dbName})
+func getDatabase(ctx context.Context, client mongo.Client, dbName string) (*mongo.Database, error) {
+	dbList, err := client.ListDatabaseNames(ctx, bson.M{"name": dbName})
 
 	if err != nil || len(dbList) != 1 || dbName != dbList[0] {
 		return nil, errors.New(fmt.Sprintf("Error: couldn't find database '%s'.", dbName))
@@ -107,8 +107,8 @@ func getDatabase(client mongo.Client, dbName string) (*mongo.Database, error) {
 	return client.Database(dbName), nil
 }
 
-func getCollection(db mongo.Database, collectionName string) (*mongo.Collection, error) {
-	collectionList, err := db.ListCollectionNames(context.TODO(), bson.M{"name": collectionName})
+func getCollection(ctx context.Context, db mongo.Database, collectionName string) (*mongo.Collection, error) {
+	collectionList, err := db.ListCollectionNames(ctx, bson.M{"name": collectionName})
 
 	if err != nil || len(collectionList) != 1 || collectionName != collectionList[0] {
 		return nil, errors.New(fmt.Sprintf("Error: couldn't find collection '%s'.", collectionName))
