@@ -3,32 +3,36 @@ package main
 import (
 	"errors"
 	"fmt"
-	"io"
+	"log/slog"
 	"net/http"
 	"os"
+	"poke-api-mini/handlers/home"
+	"poke-api-mini/handlers/pokeapi"
 )
 
-func getRoot(w http.ResponseWriter, r *http.Request) {
-	fmt.Printf("got / request\n")
-	io.WriteString(w, "This is my website!\n")
-}
-
-func getHello(w http.ResponseWriter, r *http.Request) {
-	fmt.Printf("got /hello request\n")
-	io.WriteString(w, "Hello, HTTP!\n")
-}
-
 func main() {
+	// TODO: Environtment vars
+
+	// TODO: Setup logger
+	jsonLogger := slog.New(slog.NewJSONHandler(os.Stdout, nil))
+	//consoleLogger := logger.NewConsoleLogger()
+
+	// TODO: Server
 	mux := http.NewServeMux()
-	mux.HandleFunc("/", getRoot)
-	mux.HandleFunc("/hello", getHello)
+	mux.Handle("/", &home.HomeHandler{})
+    mux.Handle("/api/v1/pokemon", &pokeapi.PokemonHandler{})
+    mux.Handle("/api/v1/pokemon/", &pokeapi.PokemonHandler{})
+
+	jsonLogger.Info("Server started.")
+	defer jsonLogger.Info("Server shut down.")
 
 	err := http.ListenAndServe(":3333", mux)
 
 	if errors.Is(err, http.ErrServerClosed) {
-		fmt.Printf("server closed\n")
+		fmt.Printf("Error: server closed.\n") // Log
 	} else if err != nil {
-		fmt.Printf("error starting server: %s\n", err)
+		fmt.Printf("Error: couldn't start server: %s\n", err) // Log
 		os.Exit(1)
 	}
 }
+	
