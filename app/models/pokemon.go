@@ -1,4 +1,4 @@
-package pokemon
+package models
 
 type Pokemon struct {
 	Id int `json:"id" bson:"_id"`
