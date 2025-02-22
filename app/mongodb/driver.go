@@ -4,6 +4,7 @@ import (
 	"context"
 	"errors"
 	"fmt"
+	"poke-api-mini/config"
 	"time"
 
 	"go.mongodb.org/mongo-driver/v2/bson"
@@ -20,21 +21,23 @@ type MongoConnection struct {
 }
 
 // TODO: Logs
-func NewConnection(ctx context.Context, dbHostUri, dbName, collectionName string) MongoConnection {
+func NewConnection(ctx context.Context, dbName, collectionName string) MongoConnection {
+	mongoDbUri := config.MongoDb.Uri
+
 	// Set client options
 	opts := options.Client()
-	opts.ApplyURI(dbHostUri)
+	opts.ApplyURI(mongoDbUri)
 	opts.SetServerSelectionTimeout(1 * time.Second)
     opts.SetConnectTimeout(1 * time.Second)
 	
 	client, err := mongo.Connect(opts)
 
 	if err != nil {
-		panic(fmt.Sprintf("Error: couldn't connect to host '%s'.", dbHostUri)) // Log
+		panic(fmt.Sprintf("Error: couldn't connect to host '%s'.", mongoDbUri)) // Log
 	}
     
 	if err = client.Ping(ctx, readpref.Primary()); err != nil {
-        panic(fmt.Sprintf("Error: unreachable host '%s'.", dbHostUri)) // Log
+        panic(fmt.Sprintf("Error: unreachable host '%s'.", mongoDbUri)) // Log
     }
 
 	fmt.Println("Connected to MongoDB.") // Log

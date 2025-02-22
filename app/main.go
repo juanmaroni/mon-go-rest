@@ -6,18 +6,21 @@ import (
 	"log/slog"
 	"net/http"
 	"os"
+	"poke-api-mini/config"
 	"poke-api-mini/handlers/home"
 	"poke-api-mini/handlers/pokeapi"
 )
 
 func main() {
-	// TODO: Environtment vars
+	// Load environtment vars
+	config.LoadServerConfig()
+	config.LoadMongoDbConfig()
 
 	// TODO: Setup logger
 	jsonLogger := slog.New(slog.NewJSONHandler(os.Stdout, nil))
 	//consoleLogger := logger.NewConsoleLogger()
 
-	// TODO: Server
+	// Server set up
 	mux := http.NewServeMux()
 	mux.Handle("/", &home.HomeHandler{})
     mux.Handle("/api/v1/pokemon", &pokeapi.PokemonHandler{})
@@ -26,7 +29,7 @@ func main() {
 	jsonLogger.Info("Server started.")
 	defer jsonLogger.Info("Server shut down.")
 
-	err := http.ListenAndServe(":3333", mux)
+	err := http.ListenAndServe(config.Server.Uri, mux)
 
 	if errors.Is(err, http.ErrServerClosed) {
 		fmt.Printf("Error: server closed.\n") // Log

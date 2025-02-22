@@ -13,9 +13,6 @@ import (
 	"time"
 )
 
-// TODO: Environment vars
-const MongoDbUri string = "mongodb://localhost:27017"
-
 // URIs
 var (
     PokemonRe = regexp.MustCompile(`^/api/v1/pokemon/*$`)
@@ -28,7 +25,7 @@ func (h *PokemonHandler) ListAllPokemon(w http.ResponseWriter, r *http.Request) 
 	ctx, cancel := context.WithTimeout(context.Background(), 2 * time.Second)
 	defer cancel()
 
-	conn := mongodb.NewConnection(ctx, MongoDbUri, "pokemon", "kanto")
+	conn := mongodb.NewConnection(ctx, "pokemon", "kanto")
 	fmt.Println(conn.Connected) // Log
 	defer conn.CloseConnection(ctx)
 	
@@ -54,7 +51,7 @@ func (h *PokemonHandler) GetPokemon(w http.ResponseWriter, r *http.Request) {
 	ctx, cancel := context.WithTimeout(context.Background(), 2 * time.Second)
 	defer cancel()
 
-	conn := mongodb.NewConnection(ctx, MongoDbUri, "pokemon", "kanto")
+	conn := mongodb.NewConnection(ctx, "pokemon", "kanto")
 	fmt.Println(conn.Connected) // Log
 	defer conn.CloseConnection(ctx)
 	
