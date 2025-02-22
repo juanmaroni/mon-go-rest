@@ -12,7 +12,7 @@ import (
 )
 
 func main() {
-	// Load environtment vars
+	// Load environment vars
 	config.LoadServerConfig()
 	config.LoadMongoDbConfig()
 
@@ -34,7 +34,7 @@ func main() {
 	if errors.Is(err, http.ErrServerClosed) {
 		fmt.Printf("Error: server closed.\n") // Log
 	} else if err != nil {
-		fmt.Printf("Error: couldn't start server: %s\n", err) // Log
+		fmt.Printf("Error: couldn't start server, %s\n", err) // Log
 		os.Exit(1)
 	}
 }

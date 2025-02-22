@@ -14,7 +14,7 @@ type MongoDbConfig struct {
 	//Path string
 }
 
-// Environtment variables
+// Environment variables
 var (
 	Server *ServerConfig
 	MongoDb *MongoDbConfig
