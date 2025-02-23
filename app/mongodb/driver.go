@@ -20,8 +20,8 @@ type MongoConnection struct {
 	Connected bool
 }
 
-// TODO: Logs
 func NewConnection(ctx context.Context, dbName, collectionName string) MongoConnection {
+	logger := config.Logger
 	mongoDbUri := config.MongoDb.Uri
 
 	// Set client options
@@ -33,30 +33,30 @@ func NewConnection(ctx context.Context, dbName, collectionName string) MongoConn
 	client, err := mongo.Connect(opts)
 
 	if err != nil {
-		panic(fmt.Sprintf("Error: couldn't connect to host '%s'.", mongoDbUri)) // Log
+		logger.Error(fmt.Sprintf("Error: couldn't connect to host '%s'.", mongoDbUri))
 	}
     
 	if err = client.Ping(ctx, readpref.Primary()); err != nil {
-        panic(fmt.Sprintf("Error: unreachable host '%s'.", mongoDbUri)) // Log
+        logger.Error(fmt.Sprintf("Error: unreachable host '%s'.", mongoDbUri))
     }
 
-	fmt.Println("Connected to MongoDB.") // Log
+	logger.Info("Connected to MongoDB.")
 
 	db, err := getDatabase(ctx, *client, dbName)
 
 	if err != nil {
-		panic(err) // Log
+		logger.Error(err.Error())
 	}
 
-	fmt.Printf("Connected to database '%s'.\n", dbName) // Log
+	logger.Info(fmt.Sprintf("Connected to database '%s'.", dbName))
 
 	collection, err := getCollection(ctx, *db, collectionName)
 
 	if err != nil {
-		panic(err) // Log
+		logger.Error(err.Error())
 	}
 
-	fmt.Printf("Connected to collection '%s'.\n", collectionName) // Log
+	logger.Info(fmt.Sprintf("Connected to collection '%s'.", collectionName))
 
 	return MongoConnection {
 		Client: client,
@@ -67,12 +67,14 @@ func NewConnection(ctx context.Context, dbName, collectionName string) MongoConn
 }
 
 func (conn *MongoConnection) CloseConnection(ctx context.Context) {
+	logger := config.Logger
+
 	if err := conn.Client.Disconnect(ctx); err != nil {
-		panic(err) // Log
+		logger.Error(err.Error())
 	}
 
 	conn.Connected = false
-	fmt.Println(conn.Connected) // Log
+	logger.Info("Disconnected from MongoDB.")
 }
 
 func GetRecordById[T interface{}](ctx context.Context, coll mongo.Collection, idField string, value int) (T, error) {

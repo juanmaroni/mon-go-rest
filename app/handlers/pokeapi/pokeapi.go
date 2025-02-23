@@ -3,8 +3,8 @@ package pokeapi
 import (
 	"context"
 	"encoding/json"
-	"fmt"
 	"net/http"
+	"poke-api-mini/config"
 	"poke-api-mini/handlers/errors"
 	"poke-api-mini/models"
 	"poke-api-mini/mongodb"
@@ -22,16 +22,17 @@ var (
 type PokemonHandler struct {}
 
 func (h *PokemonHandler) ListAllPokemon(w http.ResponseWriter, r *http.Request) {
+	logger := config.Logger
 	ctx, cancel := context.WithTimeout(context.Background(), 2 * time.Second)
 	defer cancel()
 
 	conn := mongodb.NewConnection(ctx, "pokemon", "kanto")
-	fmt.Println(conn.Connected) // Log
 	defer conn.CloseConnection(ctx)
 	
 	records, err := mongodb.GetAllRecords[models.Pokemon](ctx, *conn.Collection)
 
 	if err != nil {
+		logger.Info("HTTP Error 404: Not found.")
         errors.NotFoundHandler(w, r)
         return
     }
@@ -40,6 +41,7 @@ func (h *PokemonHandler) ListAllPokemon(w http.ResponseWriter, r *http.Request) 
 
     if err != nil {
         errors.InternalServerErrorHandler(w, r)
+		logger.Info("HTTP Error 500: Internal Server Error.")
         return
     }
 
@@ -48,11 +50,11 @@ func (h *PokemonHandler) ListAllPokemon(w http.ResponseWriter, r *http.Request) 
 }
 
 func (h *PokemonHandler) GetPokemon(w http.ResponseWriter, r *http.Request) {
+	logger := config.Logger
 	ctx, cancel := context.WithTimeout(context.Background(), 2 * time.Second)
 	defer cancel()
 
 	conn := mongodb.NewConnection(ctx, "pokemon", "kanto")
-	fmt.Println(conn.Connected) // Log
 	defer conn.CloseConnection(ctx)
 	
 	// Extract the resource ID/slug using a regex
@@ -61,6 +63,7 @@ func (h *PokemonHandler) GetPokemon(w http.ResponseWriter, r *http.Request) {
     // Expect matches to be length >= 2 (full string and 1 matching group)
     if len(matches) < 2 {
         errors.InternalServerErrorHandler(w, r)
+		logger.Info("HTTP Error 500: Internal Server Error.")
         return
     }
 
@@ -69,6 +72,7 @@ func (h *PokemonHandler) GetPokemon(w http.ResponseWriter, r *http.Request) {
     
 	if err != nil {
         errors.NotFoundHandler(w, r)
+		logger.Info("HTTP Error 404: Not found.")
         return
     }
 
@@ -76,6 +80,7 @@ func (h *PokemonHandler) GetPokemon(w http.ResponseWriter, r *http.Request) {
 
     if err != nil {
         errors.InternalServerErrorHandler(w, r)
+		logger.Info("HTTP Error 500: Internal Server Error.")
         return
     }
 
