@@ -2,8 +2,11 @@ package config
 
 import (
 	"fmt"
+	"log/slog"
 	"os"
 )
+
+var Logger *slog.Logger
 
 type ServerConfig struct {
 	Uri string
@@ -19,6 +22,10 @@ var (
 	Server *ServerConfig
 	MongoDb *MongoDbConfig
 )
+
+func LoadJSONLogger() {
+	Logger = slog.New(slog.NewJSONHandler(os.Stdout, nil))
+}
 
 func LoadServerConfig() {
 	Server = &ServerConfig{
@@ -37,7 +44,9 @@ func getEnvVar(varName string) string {
 	value, exists := os.LookupEnv(varName)
 
 	if !exists {
-		panic(fmt.Sprintf("Environment variable '%s' is not set.", varName)) // Log (slog.Panic)
+		msg := fmt.Sprintf("Environment variable '%s' is not set.", varName)
+		Logger.Error(msg)
+		panic(msg)
 	}
 
 	return value

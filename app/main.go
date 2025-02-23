@@ -3,7 +3,6 @@ package main
 import (
 	"errors"
 	"fmt"
-	"log/slog"
 	"net/http"
 	"os"
 	"poke-api-mini/config"
@@ -12,29 +11,33 @@ import (
 )
 
 func main() {
+	// Logger
+	config.LoadJSONLogger()
+	logger := config.Logger
+	logger.Info("Application started.")
+	
 	// Load environment vars
 	config.LoadServerConfig()
 	config.LoadMongoDbConfig()
-
-	// TODO: Setup logger
-	jsonLogger := slog.New(slog.NewJSONHandler(os.Stdout, nil))
-	//consoleLogger := logger.NewConsoleLogger()
+	logger.Info("Environment variables loaded.")
 
 	// Server set up
+	serverUri := config.Server.Uri
 	mux := http.NewServeMux()
 	mux.Handle("/", &home.HomeHandler{})
     mux.Handle("/api/v1/pokemon", &pokeapi.PokemonHandler{})
     mux.Handle("/api/v1/pokemon/", &pokeapi.PokemonHandler{})
 
-	jsonLogger.Info("Server started.")
-	defer jsonLogger.Info("Server shut down.")
+	logger.Info(fmt.Sprintf("Starting server at '%s'.", serverUri))
+	defer logger.Info("Server shut down.")
 
-	err := http.ListenAndServe(config.Server.Uri, mux)
+	err := http.ListenAndServe(serverUri, mux)
 
 	if errors.Is(err, http.ErrServerClosed) {
-		fmt.Printf("Error: server closed.\n") // Log
+		logger.Error("Error: server closed.")
+		os.Exit(1)
 	} else if err != nil {
-		fmt.Printf("Error: couldn't start server, %s\n", err) // Log
+		logger.Error(fmt.Sprintf("Error: couldn't start server, %s\n", err))
 		os.Exit(1)
 	}
 }
