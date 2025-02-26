@@ -4,7 +4,7 @@ import (
 	"context"
 	"errors"
 	"fmt"
-	"poke-api-mini/config"
+	"mon-go-rest/config"
 	"time"
 
 	"go.mongodb.org/mongo-driver/v2/bson"

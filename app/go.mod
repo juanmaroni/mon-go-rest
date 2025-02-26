@@ -1,4 +1,4 @@
-module poke-api-mini
+module mon-go-rest
 
 go 1.24.0
 

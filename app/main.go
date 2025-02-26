@@ -3,11 +3,11 @@ package main
 import (
 	"errors"
 	"fmt"
+	"mon-go-rest/config"
+	"mon-go-rest/handlers/home"
+	"mon-go-rest/handlers/pokeapi"
 	"net/http"
 	"os"
-	"poke-api-mini/config"
-	"poke-api-mini/handlers/home"
-	"poke-api-mini/handlers/pokeapi"
 )
 
 func main() {
