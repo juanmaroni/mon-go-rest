@@ -29,7 +29,7 @@ func LoadJSONLogger() {
 
 func LoadServerConfig() {
 	Server = &ServerConfig{
-		Uri: getEnvVar("SERVER_URI"),
+		Uri: getEnvVar("API_SERVER_URI"),
 	}
 }
 
