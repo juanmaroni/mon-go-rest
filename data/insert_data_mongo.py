@@ -27,7 +27,7 @@ def insert_data_mongo(host="localhost", port=27017, db_name="pokemon", collectio
     client.close()
 
 if __name__ == "__main__":
-    # Example: python import_data_mongo.py "localhost" 27017 "pokemon" "kanto" "./pokedata.csv"
+    # Example: python insert_data_mongo.py "localhost" 27017 "pokemon" "kanto" "./pokedata.csv"
     args = sys.argv
     insert_data_mongo(host=args[1], port=int(args[2]), db_name=args[3], collection_name=args[4], csv_path=args[5])
 
