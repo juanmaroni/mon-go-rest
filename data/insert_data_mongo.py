@@ -1,36 +1,52 @@
 import sys
-import csv
-from pymongo import MongoClient
+from mongo.driver import connect
 
-def insert_data_mongo(host="localhost", port=27017, db_name="pokemon", collection_name="kanto", csv_path="./pokedata.csv"):
-    client = MongoClient(host, port)
-    db = client[db_name]
-    db.drop_collection(collection_name) # In case collection already exists
-    collection = db[collection_name]
 
-    with open(csv_path, mode="r", encoding="utf-8") as file:
-        reader = csv.DictReader(file, delimiter=';')
-        primary_key = "number"
-        documents = []
+def main(host, port, db_name, collection_name, csv_path, overwrite_collection=False):
+    conn, err = connect(host, port, db_name, collection_name)
 
-        for row in reader:
-            if primary_key in row:
-                row["_id"] = int(row.pop(primary_key))
+    if err:
+        print(err) # Log
+        return
+    
+    print("Info: connected to MongoDB.") # Log
+    
+    if conn.collection is None:
+        print(f"Warn: collection '{collection_name}' does not exist.")
+        conn.collection = conn.db.create_collection(collection_name)
+        print(f"Warn: new collection '{collection_name}' created.")
 
-            documents.append(row)
+    msg = conn.insert_data_csv(csv_path, overwrite_collection, "number")
+    print(msg) # Log
+    conn.disconnect()
+    print("Info: disconnected from MongoDB.") # Log
 
-        if documents:
-            collection.insert_many(documents)
-        
-        print(f"{len(documents)} documents inserted.")
-
-    client.close()
 
 if __name__ == "__main__":
-    # Example: python insert_data_mongo.py "localhost" 27017 "pokemon" "kanto" "./pokedata.csv"
     args = sys.argv
+    n_args = len(args)
+
+    if n_args != 6 and n_args != 7:
+        print("Error: not enough arguments.") # Log
+        sys.exit(1)
     
-    if len(args) != 6:
-        insert_data_mongo()
-    else:
-        insert_data_mongo(host=args[1], port=int(args[2]), db_name=args[3], collection_name=args[4], csv_path=args[5])
+    if not all(args):
+        print("Error: empty value arguments not allowed.") # Log
+        sys.exit(1)
+
+    # Check optional parameters
+    overwrite_collection = False
+
+    if n_args == 7 and args[6] == "y":
+        overwrite_collection = True      
+    
+    # Example: python insert_data_mongo.py localhost 27017 pokemon kanto csv/pokemon_kanto.csv y 
+    main(
+        host=args[1],
+        port=int(args[2]),
+        db_name=args[3],
+        collection_name=args[4],
+        csv_path=args[5],
+        overwrite_collection=overwrite_collection
+    )
+    sys.exit(0)
