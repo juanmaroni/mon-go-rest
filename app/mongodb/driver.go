@@ -77,7 +77,7 @@ func (conn *MongoConnection) CloseConnection(ctx context.Context) {
 	logger.Info("Disconnected from MongoDB.")
 }
 
-func GetRecordById[T interface{}](ctx context.Context, coll mongo.Collection, idField string, value int) (T, error) {
+func GetRecordById[T any](ctx context.Context, coll mongo.Collection, idField string, value int) (T, error) {
 	var record T
 
 	if err := coll.FindOne(ctx, bson.D{{Key: idField, Value: value}}).Decode(&record); err != nil {
@@ -87,7 +87,7 @@ func GetRecordById[T interface{}](ctx context.Context, coll mongo.Collection, id
 	return record, nil
 }
 
-func GetAllRecords[T interface{}](ctx context.Context, coll mongo.Collection) ([]T, error) {
+func GetAllRecords[T any](ctx context.Context, coll mongo.Collection) ([]T, error) {
 	var records []T
 	cursor, err := coll.Find(ctx, bson.D{{}})
 
