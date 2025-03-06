@@ -16,7 +16,7 @@ class MongoConnection:
         count_coll_docs = collection.estimated_document_count()
         
         if count_coll_docs != 0 and not overwrite_collection:
-            return "Error: collection is not empty."
+            return 1, "Collection is not empty."
         
         collection.drop()
 
@@ -33,19 +33,19 @@ class MongoConnection:
             if documents:
                 collection.insert_many(documents)
         
-        return f"Info: inserted {len(documents)} documents in collection '{collection.name}'."
+        return 0, f"Inserted {len(documents)} documents in collection '{collection.name}'."
 
 
 def connect(host, port, db_name, collection_name):
     client = MongoClient(host, port)
         
     if not client:
-        return None, f"Error: couldn't connect to MongoDB with host '{host}' and port '{port}'."
+        return None, f"Couldn't connect to MongoDB with host '{host}' and port '{port}'."
     
     db_names = client.list_database_names()
 
     if db_name not in db_names:
-        return None, f"Error: database '{db_name}' doesn't exist."
+        return None, f"Database '{db_name}' doesn't exist."
         
     db = client.get_database(db_name)
     collection_names = db.list_collection_names()
