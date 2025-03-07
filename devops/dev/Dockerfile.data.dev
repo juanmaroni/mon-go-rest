@@ -1,0 +1,8 @@
+FROM python:3.13.2-slim-bookworm
+
+WORKDIR /data
+COPY ../data /data
+RUN python -m venv venv && venv/bin/pip install --no-cache-dir -r requirements.txt
+
+ENTRYPOINT ["venv/bin/python", "insert_data_mongo.py"]
+CMD ["mongo", "27017", "pokemon", "kanto", "csv/pokemon_kanto.csv", "y"]

@@ -1,0 +1,47 @@
+name: app-dev
+
+services:
+  mongo:
+    image: mongo
+    container_name: mongodb
+    env_file:
+      - .env.dev.mongodb
+    ports:
+      - "27017:${MONGODB_PORT}"
+    volumes:
+      - mongo_data:${MONGODB_PATH}
+    networks:
+      - api-network
+
+  api:
+    container_name: api
+    build:
+      context: ../../
+      dockerfile: devops/dev/Dockerfile.app.dev
+    depends_on:
+      - mongo
+    env_file:
+      - .env.dev.mongodb
+      - .env.dev.apiserver
+    ports:
+      - "3333:${API_SERVER_PORT}"
+    networks:
+      - api-network
+
+  data_loader:
+    container_name: data_loader
+    restart: "no"
+    build:
+      context: ../../
+      dockerfile: devops/dev/Dockerfile.data.dev
+    depends_on:
+      - mongo
+    networks:
+      - api-network
+
+networks:
+  api-network:
+    driver: bridge
+
+volumes:
+  mongo_data:

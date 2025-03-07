@@ -1,0 +1,9 @@
+FROM golang:1.24.0-bookworm
+
+WORKDIR /app
+COPY ../app /app
+RUN go mod tidy && go build -o server .
+
+EXPOSE 3333
+
+CMD ["./server"]
