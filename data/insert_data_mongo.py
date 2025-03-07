@@ -38,7 +38,7 @@ if __name__ == "__main__":
     n_args = len(args)
 
     if n_args != 5 and n_args != 6:
-        logger.error("Not enough arguments.")
+        logger.error("Incorrect number of arguments.")
         exit(1)
     
     if not all(args):
