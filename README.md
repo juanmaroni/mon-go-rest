@@ -7,7 +7,7 @@ Allowed HTTP operations: GET (one or all).
 ## Run with Docker
 From "devops/dev" directory, run:
 ```
-docker compose --env-file .env.compose -f docker-compose.dev.yml up --build -d 
+docker compose --env-file .env.dev.compose -f docker-compose.dev.yml up --build -d 
 ```
 
 And check endpoints:
