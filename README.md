@@ -4,14 +4,20 @@ Data is stored in MongoDB, initially imported with a Python script and a CSV.
 
 Allowed HTTP operations: GET (one or all).
 
-## Docker
+## Run with Docker
 From "devops/dev" directory, run:
 ```
 docker compose --env-file .env.compose -f docker-compose.dev.yml up --build -d 
 ```
 
+And check endpoints:
 ```
+# Homepage
 curl http://localhost:3333/
+
+# Get all
 curl http://localhost:3333/api/v1/pokemon
+
+# Get one
 curl http://localhost:3333/api/v1/pokemon/151
 ```
