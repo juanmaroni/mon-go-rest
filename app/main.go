@@ -29,7 +29,6 @@ func main() {
     mux.Handle("/api/v1/pokemon/", &pokeapi.PokemonHandler{})
 
 	logger.Info(fmt.Sprintf("Starting server at '%s'.", serverUri))
-	defer logger.Info("Server shut down.")
 
 	err := http.ListenAndServe(serverUri, mux)
 
