@@ -1,9 +1,6 @@
 FROM python:3.13.2-slim-bookworm
 
-ARG GIT_BRANCH
-
 WORKDIR /data
-RUN git fetch origin && git checkout ${GIT_BRANCH}
 COPY ../data /data
 RUN python -m venv venv && venv/bin/pip install --no-cache-dir -r requirements.txt
 

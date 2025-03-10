@@ -18,8 +18,6 @@ services:
     build:
       context: ../../
       dockerfile: devops/dev/Dockerfile.app.dev
-      args:
-        GIT_BRANCH: ${GIT_DEV_BRANCH}
     depends_on:
       - mongo
     env_file:
@@ -36,8 +34,6 @@ services:
     build:
       context: ../../
       dockerfile: devops/dev/Dockerfile.data.dev
-      args:
-        GIT_DEV_BRANCH: ${GIT_DEV_BRANCH}
     depends_on:
       - mongo
     networks:
