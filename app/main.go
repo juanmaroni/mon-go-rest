@@ -3,7 +3,8 @@ package main
 import (
 	"errors"
 	"fmt"
-	"mon-go-rest/config"
+	"mon-go-rest/config/logging"
+	"mon-go-rest/config/server"
 	"mon-go-rest/handlers/home"
 	"mon-go-rest/handlers/pokeapi"
 	"net/http"
@@ -12,17 +13,25 @@ import (
 
 func main() {
 	// Logger
-	config.LoadJSONLogger()
-	logger := config.Logger
+	logging.LoadJSONLogger()
+	logger := logging.Logger
 	logger.Info("Application started.")
 	
 	// Load environment vars
-	config.LoadServerConfig()
-	config.LoadMongoDbConfig()
+	if err := server.LoadConfig(); err != nil {
+		logger.Error(err.Error())
+		panic(err)
+	}
+
+	if err := server.LoadConfig(); err != nil {
+		logger.Error(err.Error())
+		panic(err)
+	}
+
 	logger.Info("Environment variables loaded.")
 
 	// Server set up
-	serverUri := config.Server.Uri
+	serverUri := server.Server.Uri
 	mux := http.NewServeMux()
 	mux.Handle("/", &home.HomeHandler{})
     mux.Handle("/api/v1/pokemon", &pokeapi.PokemonHandler{})

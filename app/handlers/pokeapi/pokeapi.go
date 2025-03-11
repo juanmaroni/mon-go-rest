@@ -3,7 +3,7 @@ package pokeapi
 import (
 	"context"
 	"encoding/json"
-	"mon-go-rest/config"
+	"mon-go-rest/config/logging"
 	"mon-go-rest/handlers/errors"
 	"mon-go-rest/models"
 	"mon-go-rest/mongodb"
@@ -22,7 +22,7 @@ var (
 type PokemonHandler struct {}
 
 func (h *PokemonHandler) ListAllPokemon(w http.ResponseWriter, r *http.Request) {
-	logger := config.Logger
+	logger := logging.Logger
 	ctx, cancel := context.WithTimeout(context.Background(), 2 * time.Second)
 	defer cancel()
 
@@ -50,7 +50,7 @@ func (h *PokemonHandler) ListAllPokemon(w http.ResponseWriter, r *http.Request) 
 }
 
 func (h *PokemonHandler) GetPokemon(w http.ResponseWriter, r *http.Request) {
-	logger := config.Logger
+	logger := logging.Logger
 	ctx, cancel := context.WithTimeout(context.Background(), 2 * time.Second)
 	defer cancel()
 

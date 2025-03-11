@@ -4,7 +4,8 @@ import (
 	"context"
 	"errors"
 	"fmt"
-	"mon-go-rest/config"
+	"mon-go-rest/config/logging"
+	"mon-go-rest/config/mongodb"
 	"time"
 
 	"go.mongodb.org/mongo-driver/v2/bson"
@@ -21,8 +22,8 @@ type MongoConnection struct {
 }
 
 func NewConnection(ctx context.Context, dbName, collectionName string) MongoConnection {
-	logger := config.Logger
-	mongoDbUri := config.MongoDb.Uri
+	logger := logging.Logger
+	mongoDbUri := mongodb.MongoDb.Uri
 
 	// Set client options
 	opts := options.Client()
@@ -67,7 +68,7 @@ func NewConnection(ctx context.Context, dbName, collectionName string) MongoConn
 }
 
 func (conn *MongoConnection) CloseConnection(ctx context.Context) {
-	logger := config.Logger
+	logger := logging.Logger
 
 	if err := conn.Client.Disconnect(ctx); err != nil {
 		logger.Error(err.Error())
