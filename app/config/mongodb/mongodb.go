@@ -9,13 +9,13 @@ type Mongo struct {
 var MongoDb *Mongo
 
 func LoadConfig() error {
-	mongodbUri, err := utils.GetEnvVar("API_SERVER_URI")
+	mongodbUri, err := utils.GetEnvVar("MONGODB_URI")
 
 	if err != nil {
 		return err
 	}
 
-	MongoDb = &Mongo{
+	MongoDb = &Mongo {
 		Uri: mongodbUri,
 	}
 

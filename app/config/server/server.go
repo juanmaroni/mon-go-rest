@@ -15,7 +15,7 @@ func LoadConfig() error {
 		return err
 	}
 
-	Server = &ApiServer{
+	Server = &ApiServer {
 		Uri: apiServerUri,
 	}
 

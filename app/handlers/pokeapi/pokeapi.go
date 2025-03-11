@@ -27,6 +27,11 @@ func (h *PokemonHandler) ListAllPokemon(w http.ResponseWriter, r *http.Request) 
 	defer cancel()
 
 	conn := mongodb.NewConnection(ctx, "pokemon", "kanto")
+
+	if conn.Collection == nil {
+		return
+	}
+
 	defer conn.CloseConnection(ctx)
 	
 	records, err := mongodb.GetAllRecords[models.Pokemon](ctx, *conn.Collection)

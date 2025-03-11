@@ -4,6 +4,7 @@ import (
 	"errors"
 	"fmt"
 	"mon-go-rest/config/logging"
+	"mon-go-rest/config/mongodb"
 	"mon-go-rest/config/server"
 	"mon-go-rest/handlers/home"
 	"mon-go-rest/handlers/pokeapi"
@@ -23,7 +24,7 @@ func main() {
 		panic(err)
 	}
 
-	if err := server.LoadConfig(); err != nil {
+	if err := mongodb.LoadConfig(); err != nil {
 		logger.Error(err.Error())
 		panic(err)
 	}

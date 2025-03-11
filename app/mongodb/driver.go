@@ -35,18 +35,24 @@ func NewConnection(ctx context.Context, dbName, collectionName string) MongoConn
 
 	if err != nil {
 		logger.Error(fmt.Sprintf("Error: couldn't connect to host '%s'.", mongoDbUri))
+
+		return MongoConnection{}
 	}
     
 	if err = client.Ping(ctx, readpref.Primary()); err != nil {
         logger.Error(fmt.Sprintf("Error: unreachable host '%s'.", mongoDbUri))
+
+		return MongoConnection{}
     }
 
-	logger.Info("Connected to MongoDB.")
+	logger.Info(fmt.Sprintf("Connected to MongoDB at '%s'.", mongoDbUri))
 
 	db, err := getDatabase(ctx, *client, dbName)
 
 	if err != nil {
 		logger.Error(err.Error())
+
+		return MongoConnection{}
 	}
 
 	logger.Info(fmt.Sprintf("Connected to database '%s'.", dbName))
@@ -55,6 +61,8 @@ func NewConnection(ctx context.Context, dbName, collectionName string) MongoConn
 
 	if err != nil {
 		logger.Error(err.Error())
+
+		return MongoConnection{}
 	}
 
 	logger.Info(fmt.Sprintf("Connected to collection '%s'.", collectionName))
