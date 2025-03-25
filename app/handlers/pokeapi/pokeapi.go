@@ -4,7 +4,7 @@ import (
 	"context"
 	"encoding/json"
 	"mon-go-rest/config/logging"
-	"mon-go-rest/handlers/errors"
+	"mon-go-rest/handlers/httperrors"
 	"mon-go-rest/models"
 	"mon-go-rest/mongodb"
 	"net/http"
@@ -38,14 +38,14 @@ func (h *PokemonHandler) ListAllPokemon(w http.ResponseWriter, r *http.Request) 
 
 	if err != nil {
 		logger.Info("HTTP Error 404: Not found.")
-        errors.NotFoundHandler(w, r)
+        httperrors.NotFoundHandler(w, r)
         return
     }
 
     jsonRecords, err := json.MarshalIndent(records, "", "  ")
 
     if err != nil {
-        errors.InternalServerErrorHandler(w, r)
+        httperrors.InternalServerErrorHandler(w, r)
 		logger.Info("HTTP Error 500: Internal Server Error.")
         return
     }
@@ -67,7 +67,7 @@ func (h *PokemonHandler) GetPokemon(w http.ResponseWriter, r *http.Request) {
 
     // Expect matches to be length >= 2 (full string and 1 matching group)
     if len(matches) < 2 {
-        errors.InternalServerErrorHandler(w, r)
+        httperrors.InternalServerErrorHandler(w, r)
 		logger.Info("HTTP Error 500: Internal Server Error.")
         return
     }
@@ -76,7 +76,7 @@ func (h *PokemonHandler) GetPokemon(w http.ResponseWriter, r *http.Request) {
     pokemon, err := mongodb.GetRecordById[models.Pokemon](ctx, *conn.Collection, "_id", idValue)
     
 	if err != nil {
-        errors.NotFoundHandler(w, r)
+        httperrors.NotFoundHandler(w, r)
 		logger.Info("HTTP Error 404: Not found.")
         return
     }
@@ -84,7 +84,7 @@ func (h *PokemonHandler) GetPokemon(w http.ResponseWriter, r *http.Request) {
     jsonRecord, err := json.MarshalIndent(pokemon, "", "  ")
 
     if err != nil {
-        errors.InternalServerErrorHandler(w, r)
+        httperrors.InternalServerErrorHandler(w, r)
 		logger.Info("HTTP Error 500: Internal Server Error.")
         return
     }
