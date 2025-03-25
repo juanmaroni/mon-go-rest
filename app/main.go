@@ -40,7 +40,8 @@ func main() {
 
 	logger.Info(fmt.Sprintf("Starting server at '%s'.", serverUri))
 
-	err := http.ListenAndServe(serverUri, mux)
+	logMux := logging.HttpRequestLogging(logger)(mux)
+	err := http.ListenAndServe(serverUri, logMux)
 
 	if errors.Is(err, http.ErrServerClosed) {
 		logger.Error("Error: server closed.")
