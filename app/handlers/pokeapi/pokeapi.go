@@ -3,6 +3,7 @@ package pokeapi
 import (
 	"context"
 	"encoding/json"
+	"fmt"
 	"mon-go-rest/config/logging"
 	"mon-go-rest/handlers/httperrors"
 	"mon-go-rest/models"
@@ -15,8 +16,11 @@ import (
 
 // URIs
 var (
-    PokemonRe = regexp.MustCompile(`^/api/v1/pokemon/*$`)
-    PokemonIdRe = regexp.MustCompile(`^/api/v1/pokemon/([0-9]{1,4})$`)
+    PokemonRe = regexp.MustCompile(`^/api/v1/pokemon/*$`) // Get all
+    PokemonIdRe = regexp.MustCompile(`^/api/v1/pokemon/([0-9]{1,4})$`) // Get one by Pokédex number (id)
+	PokemonRegionRe = regexp.MustCompile(`^/api/v1/pokemon/(kanto|johto)$`) // Get all by region
+
+	Regions = []string{"kanto", "johto"}
 )
 
 type PokemonHandler struct {}
@@ -26,23 +30,21 @@ func (h *PokemonHandler) ListAllPokemon(w http.ResponseWriter, r *http.Request) 
 	ctx, cancel := context.WithTimeout(context.Background(), 2 * time.Second)
 	defer cancel()
 
-	conn := mongodb.NewConnection(ctx, "pokemon", "kanto")
+	allRecords := []models.Pokemon{}
 
-	if conn.Collection == nil {
-		return
+	for _, region := range Regions {
+		records, err := getRecordsByRegion(ctx, region)
+		
+		if err != nil {
+			logger.Info("HTTP Error 404: Not found.")
+			httperrors.NotFoundHandler(w, r)
+			return
+		}
+
+		allRecords = append(allRecords, records...)
 	}
 
-	defer conn.CloseConnection(ctx)
-	
-	records, err := mongodb.GetAllRecords[models.Pokemon](ctx, *conn.Collection)
-
-	if err != nil {
-		logger.Info("HTTP Error 404: Not found.")
-        httperrors.NotFoundHandler(w, r)
-        return
-    }
-
-    jsonRecords, err := json.MarshalIndent(records, "", "  ")
+	jsonRecords, err := json.MarshalIndent(allRecords, "", "  ")
 
     if err != nil {
         httperrors.InternalServerErrorHandler(w, r)
@@ -56,12 +58,7 @@ func (h *PokemonHandler) ListAllPokemon(w http.ResponseWriter, r *http.Request) 
 
 func (h *PokemonHandler) GetPokemon(w http.ResponseWriter, r *http.Request) {
 	logger := logging.Logger
-	ctx, cancel := context.WithTimeout(context.Background(), 2 * time.Second)
-	defer cancel()
 
-	conn := mongodb.NewConnection(ctx, "pokemon", "kanto")
-	defer conn.CloseConnection(ctx)
-	
 	// Extract the resource ID/slug using a regex
     matches := PokemonIdRe.FindStringSubmatch(r.URL.Path)
 
@@ -72,7 +69,28 @@ func (h *PokemonHandler) GetPokemon(w http.ResponseWriter, r *http.Request) {
         return
     }
 
-	idValue, _ := strconv.Atoi(matches[1])
+	idValue, err := strconv.Atoi(matches[1])
+
+	if err != nil {
+        httperrors.NotFoundHandler(w, r)
+		logger.Info("HTTP Error 404: Not found.")
+        return
+    }
+
+	region := getRegionByPokemonId(idValue)
+
+	if region == "" {
+		httperrors.NotFoundHandler(w, r)
+		logger.Info("HTTP Error 404: Not found.")
+        return
+	}
+
+	ctx, cancel := context.WithTimeout(context.Background(), 2 * time.Second)
+	defer cancel()
+
+	conn := mongodb.NewConnection(ctx, "pokemon", region)
+	defer conn.CloseConnection(ctx)
+
     pokemon, err := mongodb.GetRecordById[models.Pokemon](ctx, *conn.Collection, "_id", idValue)
     
 	if err != nil {
@@ -104,4 +122,26 @@ func (h *PokemonHandler) ServeHTTP(w http.ResponseWriter, r *http.Request) {
     default:
         return
     }
+}
+
+func getRecordsByRegion(ctx context.Context, region string) ([]models.Pokemon, error) {
+	conn := mongodb.NewConnection(ctx, "pokemon", region)
+	defer conn.CloseConnection(ctx)
+
+	if conn.Collection == nil {
+		// Collection is missing, cannot give a proper response
+		panic(fmt.Sprintf("Error: couldn't find collection '%s'.", region))
+	}
+
+	return mongodb.GetAllRecords[models.Pokemon](ctx, *conn.Collection)
+}
+
+func getRegionByPokemonId(id int) string {
+	if id >= 1 && id <= 151 {
+		return "kanto"
+	} else if id >= 152 && id <= 251 {
+		return "johto"
+	} else {
+		return ""
+	}
 }
