@@ -144,6 +144,9 @@ func (h *PokemonHandler) GetPokemon(w http.ResponseWriter, r *http.Request) {
 
 func (h *PokemonHandler) ServeHTTP(w http.ResponseWriter, r *http.Request) {
     switch {
+	case r.Method != http.MethodGet:
+		httperrors.ForbiddenHandler(w, r)
+        return
     case r.Method == http.MethodGet && PokemonRe.MatchString(r.URL.Path):
         h.ListAllPokemon(w, r)
         return
