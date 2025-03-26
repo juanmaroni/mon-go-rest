@@ -18,6 +18,9 @@ curl http://localhost:3333/
 # Get all
 curl http://localhost:3333/api/v1/pokemon
 
-# Get one
+# Get all by region
+curl http://localhost:3333/api/v1/pokemon/kanto
+
+# Get one by Pokédex number (id)
 curl http://localhost:3333/api/v1/pokemon/151
 ```
