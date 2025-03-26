@@ -17,8 +17,8 @@ import (
 // URIs
 var (
     PokemonRe = regexp.MustCompile(`^/api/v1/pokemon/*$`) // Get all
-    PokemonIdRe = regexp.MustCompile(`^/api/v1/pokemon/([0-9]{1,4})$`) // Get one by Pokédex number (id)
 	PokemonRegionRe = regexp.MustCompile(`^/api/v1/pokemon/(kanto|johto)$`) // Get all by region
+    PokemonIdRe = regexp.MustCompile(`^/api/v1/pokemon/([0-9]{1,4})$`) // Get one by Pokédex number (id)
 
 	Regions = []string{"kanto", "johto"}
 )
@@ -56,20 +56,51 @@ func (h *PokemonHandler) ListAllPokemon(w http.ResponseWriter, r *http.Request) 
     w.Write(jsonRecords)
 }
 
-func (h *PokemonHandler) GetPokemon(w http.ResponseWriter, r *http.Request) {
+func (h *PokemonHandler) ListAllPokemoByRegion(w http.ResponseWriter, r *http.Request) {
 	logger := logging.Logger
+	match := getRegexUrlMatch(PokemonRegionRe, r.URL.Path)
 
-	// Extract the resource ID/slug using a regex
-    matches := PokemonIdRe.FindStringSubmatch(r.URL.Path)
-
-    // Expect matches to be length >= 2 (full string and 1 matching group)
-    if len(matches) < 2 {
+    if match == "" {
         httperrors.InternalServerErrorHandler(w, r)
 		logger.Info("HTTP Error 500: Internal Server Error.")
         return
     }
 
-	idValue, err := strconv.Atoi(matches[1])
+	ctx, cancel := context.WithTimeout(context.Background(), 2 * time.Second)
+	defer cancel()
+
+	records, err := getRecordsByRegion(ctx, match)
+		
+	if err != nil {
+		logger.Info("HTTP Error 404: Not found.")
+		httperrors.NotFoundHandler(w, r)
+		return
+	}
+
+	jsonRecords, err := json.MarshalIndent(records, "", "  ")
+
+    if err != nil {
+        httperrors.InternalServerErrorHandler(w, r)
+		logger.Info("HTTP Error 500: Internal Server Error.")
+        return
+    }
+
+    w.WriteHeader(http.StatusOK)
+    w.Write(jsonRecords)
+}
+
+func (h *PokemonHandler) GetPokemon(w http.ResponseWriter, r *http.Request) {
+	logger := logging.Logger
+
+	match := getRegexUrlMatch(PokemonIdRe, r.URL.Path)
+
+    if match == "" {
+        httperrors.InternalServerErrorHandler(w, r)
+		logger.Info("HTTP Error 500: Internal Server Error.")
+        return
+    }
+
+	idValue, err := strconv.Atoi(match)
 
 	if err != nil {
         httperrors.NotFoundHandler(w, r)
@@ -116,10 +147,14 @@ func (h *PokemonHandler) ServeHTTP(w http.ResponseWriter, r *http.Request) {
     case r.Method == http.MethodGet && PokemonRe.MatchString(r.URL.Path):
         h.ListAllPokemon(w, r)
         return
+	case r.Method == http.MethodGet && PokemonRegionRe.MatchString(r.URL.Path):
+        h.ListAllPokemoByRegion(w, r)
+        return
     case r.Method == http.MethodGet && PokemonIdRe.MatchString(r.URL.Path):
         h.GetPokemon(w, r)
         return
     default:
+		httperrors.NotFoundHandler(w, r)
         return
     }
 }
@@ -144,4 +179,16 @@ func getRegionByPokemonId(id int) string {
 	} else {
 		return ""
 	}
+}
+
+func getRegexUrlMatch(re *regexp.Regexp, url string) string {
+	// Extract the resource ID/slug using a regex
+    matches := re.FindStringSubmatch(url)
+
+    // Expect matches to be length == 2 (full string and 1 matching group)
+    if len(matches) < 2 {
+        return ""
+    }
+
+	return matches[1]
 }
