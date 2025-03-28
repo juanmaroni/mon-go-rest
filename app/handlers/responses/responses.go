@@ -19,6 +19,7 @@ func ForbiddenHandler(w http.ResponseWriter, r *http.Request) string {
 func NotFoundHandler(w http.ResponseWriter, r *http.Request) string {
 	var message string = "404 Not Found"
 	buildResponse(w, http.StatusNotFound, message, nil)
+	
 	return message
 }
 
