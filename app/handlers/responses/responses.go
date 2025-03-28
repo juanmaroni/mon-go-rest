@@ -2,6 +2,13 @@ package responses
 
 import "net/http"
 
+func OkHandler(w http.ResponseWriter, r *http.Request, content []byte) string {
+	var message string = "200 OK"
+	buildResponse(w, http.StatusOK, message, content)
+
+	return message
+}
+
 func ForbiddenHandler(w http.ResponseWriter, r *http.Request) string {
 	var message string = "403 Forbidden"
 	buildResponse(w, http.StatusForbidden, message, nil)
