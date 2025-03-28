@@ -3,33 +3,38 @@ package responses
 import "net/http"
 
 func ForbiddenHandler(w http.ResponseWriter, r *http.Request) string {
-	msg := []byte("403 Forbidden")
-    w.WriteHeader(http.StatusForbidden)
-    w.Write(msg)
+	var message string = "403 Forbidden"
+	buildResponse(w, http.StatusForbidden, message, nil)
 
-	return string(msg[:])
+	return message
 }
 
 func NotFoundHandler(w http.ResponseWriter, r *http.Request) string {
-	msg := []byte("404 Not Found")
-    w.WriteHeader(http.StatusNotFound)
-    w.Write(msg)
-
-	return string(msg[:])
+	var message string = "404 Not Found"
+	buildResponse(w, http.StatusNotFound, message, nil)
+	return message
 }
 
 func MethodNotAllowedHandler(w http.ResponseWriter, r *http.Request) string {
-	msg := []byte("405 Method Not Allowed")
-    w.WriteHeader(http.StatusMethodNotAllowed)
-    w.Write(msg)
+	var message string = "405 Method Not Allowed"
+	buildResponse(w, http.StatusMethodNotAllowed, message, nil)
 
-	return string(msg[:])
+	return message
 }
 
 func InternalServerErrorHandler(w http.ResponseWriter, r *http.Request) string {
-	msg := []byte("500 Internal Server Error")
-    w.WriteHeader(http.StatusInternalServerError)
-    w.Write(msg)
+	var message string = "500 Internal Server Error"
+	buildResponse(w, http.StatusInternalServerError, message, nil)
 
-	return string(msg[:])
+	return message
+}
+
+func buildResponse(w http.ResponseWriter, statusCode int, message string, content []byte) {
+	w.WriteHeader(statusCode)
+
+	if content == nil {
+		content = []byte(message)
+	}
+
+	w.Write(content)
 }
