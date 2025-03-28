@@ -5,7 +5,7 @@ import (
 	"encoding/json"
 	"fmt"
 	"mon-go-rest/config/logging"
-	httpErrors "mon-go-rest/handlers/httperrors"
+	"mon-go-rest/handlers/responses"
 	"mon-go-rest/models"
 	"mon-go-rest/mongodb"
 	"net/http"
@@ -36,7 +36,7 @@ func (h *PokemonHandler) ListAllPokemon(w http.ResponseWriter, r *http.Request) 
 		records, err := getRecordsByRegion(ctx, region)
 		
 		if err != nil {
-			msg := httpErrors.NotFoundHandler(w, r)
+			msg := responses.NotFoundHandler(w, r)
 			logger.Info(msg)
 			return
 		}
@@ -47,7 +47,7 @@ func (h *PokemonHandler) ListAllPokemon(w http.ResponseWriter, r *http.Request) 
 	jsonRecords, err := json.MarshalIndent(allRecords, "", "  ")
 
     if err != nil {
-        msg := httpErrors.InternalServerErrorHandler(w, r)
+        msg := responses.InternalServerErrorHandler(w, r)
 		logger.Error(msg)
         return
     }
@@ -61,7 +61,7 @@ func (h *PokemonHandler) ListAllPokemoByRegion(w http.ResponseWriter, r *http.Re
 	match := getRegexUrlMatch(PokemonRegionRe, r.URL.Path)
 
     if match == "" {
-        msg := httpErrors.InternalServerErrorHandler(w, r)
+        msg := responses.InternalServerErrorHandler(w, r)
 		logger.Error(msg)
         return
     }
@@ -72,7 +72,7 @@ func (h *PokemonHandler) ListAllPokemoByRegion(w http.ResponseWriter, r *http.Re
 	records, err := getRecordsByRegion(ctx, match)
 		
 	if err != nil {
-		msg := httpErrors.NotFoundHandler(w, r)
+		msg := responses.NotFoundHandler(w, r)
 		logger.Info(msg)
 		return
 	}
@@ -80,7 +80,7 @@ func (h *PokemonHandler) ListAllPokemoByRegion(w http.ResponseWriter, r *http.Re
 	jsonRecords, err := json.MarshalIndent(records, "", "  ")
 
     if err != nil {
-        msg := httpErrors.InternalServerErrorHandler(w, r)
+        msg := responses.InternalServerErrorHandler(w, r)
 		logger.Error(msg)
         return
     }
@@ -95,7 +95,7 @@ func (h *PokemonHandler) GetPokemon(w http.ResponseWriter, r *http.Request) {
 	match := getRegexUrlMatch(PokemonIdRe, r.URL.Path)
 
     if match == "" {
-        msg := httpErrors.InternalServerErrorHandler(w, r)
+        msg := responses.InternalServerErrorHandler(w, r)
 		logger.Error(msg)
         return
     }
@@ -103,7 +103,7 @@ func (h *PokemonHandler) GetPokemon(w http.ResponseWriter, r *http.Request) {
 	idValue, err := strconv.Atoi(match)
 
 	if err != nil {
-        msg := httpErrors.NotFoundHandler(w, r)
+        msg := responses.NotFoundHandler(w, r)
 		logger.Info(msg)
         return
     }
@@ -111,7 +111,7 @@ func (h *PokemonHandler) GetPokemon(w http.ResponseWriter, r *http.Request) {
 	region := getRegionByPokemonId(idValue)
 
 	if region == "" {
-		msg := httpErrors.NotFoundHandler(w, r)
+		msg := responses.NotFoundHandler(w, r)
 		logger.Info(msg)
         return
 	}
@@ -125,7 +125,7 @@ func (h *PokemonHandler) GetPokemon(w http.ResponseWriter, r *http.Request) {
     pokemon, err := mongodb.GetRecordById[models.Pokemon](ctx, *conn.Collection, "_id", idValue)
     
 	if err != nil {
-        msg := httpErrors.NotFoundHandler(w, r)
+        msg := responses.NotFoundHandler(w, r)
 		logger.Info(msg)
         return
     }
@@ -133,7 +133,7 @@ func (h *PokemonHandler) GetPokemon(w http.ResponseWriter, r *http.Request) {
     jsonRecord, err := json.MarshalIndent(pokemon, "", "  ")
 
     if err != nil {
-        msg := httpErrors.InternalServerErrorHandler(w, r)
+        msg := responses.InternalServerErrorHandler(w, r)
 		logger.Error(msg)
         return
     }
@@ -145,7 +145,7 @@ func (h *PokemonHandler) GetPokemon(w http.ResponseWriter, r *http.Request) {
 func (h *PokemonHandler) ServeHTTP(w http.ResponseWriter, r *http.Request) {
 	switch {
 	case r.Method != http.MethodGet:
-		msg := httpErrors.MethodNotAllowedHandler(w, r)
+		msg := responses.MethodNotAllowedHandler(w, r)
 		logging.Logger.Info(msg)
         return
     case r.Method == http.MethodGet && PokemonRe.MatchString(r.URL.Path):
@@ -158,7 +158,7 @@ func (h *PokemonHandler) ServeHTTP(w http.ResponseWriter, r *http.Request) {
         h.GetPokemon(w, r)
         return
     default:
-		msg := httpErrors.NotFoundHandler(w, r)
+		msg := responses.NotFoundHandler(w, r)
 		logging.Logger.Info(msg)
         return
     }

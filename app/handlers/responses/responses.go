@@ -1,4 +1,4 @@
-package httperrors
+package responses
 
 import "net/http"
 
