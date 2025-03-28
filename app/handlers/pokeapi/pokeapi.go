@@ -36,8 +36,8 @@ func (h *PokemonHandler) ListAllPokemon(w http.ResponseWriter, r *http.Request) 
 		records, err := getRecordsByRegion(ctx, region)
 		
 		if err != nil {
-			msg := responses.NotFoundHandler(w, r)
-			logger.Info(msg)
+			message := responses.NotFoundHandler(w, r)
+			logger.Info(message)
 			return
 		}
 
@@ -47,13 +47,13 @@ func (h *PokemonHandler) ListAllPokemon(w http.ResponseWriter, r *http.Request) 
 	jsonRecords, err := json.MarshalIndent(allRecords, "", "  ")
 
     if err != nil {
-        msg := responses.InternalServerErrorHandler(w, r)
-		logger.Error(msg)
+        message := responses.InternalServerErrorHandler(w, r)
+		logger.Error(message)
         return
     }
 
-	msg:= responses.OkHandler(w, r, jsonRecords)
-	logger.Info(msg)
+	message:= responses.OkHandler(w, r, jsonRecords)
+	logger.Info(message)
 }
 
 func (h *PokemonHandler) ListAllPokemoByRegion(w http.ResponseWriter, r *http.Request) {
@@ -61,8 +61,8 @@ func (h *PokemonHandler) ListAllPokemoByRegion(w http.ResponseWriter, r *http.Re
 	match := getRegexUrlMatch(PokemonRegionRe, r.URL.Path)
 
     if match == "" {
-        msg := responses.InternalServerErrorHandler(w, r)
-		logger.Error(msg)
+        message := responses.InternalServerErrorHandler(w, r)
+		logger.Error(message)
         return
     }
 
@@ -72,21 +72,21 @@ func (h *PokemonHandler) ListAllPokemoByRegion(w http.ResponseWriter, r *http.Re
 	records, err := getRecordsByRegion(ctx, match)
 		
 	if err != nil {
-		msg := responses.NotFoundHandler(w, r)
-		logger.Info(msg)
+		message := responses.NotFoundHandler(w, r)
+		logger.Info(message)
 		return
 	}
 
 	jsonRecords, err := json.MarshalIndent(records, "", "  ")
 
     if err != nil {
-        msg := responses.InternalServerErrorHandler(w, r)
-		logger.Error(msg)
+        message := responses.InternalServerErrorHandler(w, r)
+		logger.Error(message)
         return
     }
 
-    msg := responses.OkHandler(w, r, jsonRecords)
-	logger.Info(msg)
+    message := responses.OkHandler(w, r, jsonRecords)
+	logger.Info(message)
 }
 
 func (h *PokemonHandler) GetPokemon(w http.ResponseWriter, r *http.Request) {
@@ -95,24 +95,24 @@ func (h *PokemonHandler) GetPokemon(w http.ResponseWriter, r *http.Request) {
 	match := getRegexUrlMatch(PokemonIdRe, r.URL.Path)
 
     if match == "" {
-        msg := responses.InternalServerErrorHandler(w, r)
-		logger.Error(msg)
+        message := responses.InternalServerErrorHandler(w, r)
+		logger.Error(message)
         return
     }
 
 	idValue, err := strconv.Atoi(match)
 
 	if err != nil {
-        msg := responses.NotFoundHandler(w, r)
-		logger.Info(msg)
+        message := responses.NotFoundHandler(w, r)
+		logger.Info(message)
         return
     }
 
 	region := getRegionByPokemonId(idValue)
 
 	if region == "" {
-		msg := responses.NotFoundHandler(w, r)
-		logger.Info(msg)
+		message := responses.NotFoundHandler(w, r)
+		logger.Info(message)
         return
 	}
 
@@ -125,28 +125,28 @@ func (h *PokemonHandler) GetPokemon(w http.ResponseWriter, r *http.Request) {
     pokemon, err := mongodb.GetRecordById[models.Pokemon](ctx, *conn.Collection, "_id", idValue)
     
 	if err != nil {
-        msg := responses.NotFoundHandler(w, r)
-		logger.Info(msg)
+        message := responses.NotFoundHandler(w, r)
+		logger.Info(message)
         return
     }
 
     jsonRecord, err := json.MarshalIndent(pokemon, "", "  ")
 
     if err != nil {
-        msg := responses.InternalServerErrorHandler(w, r)
-		logger.Error(msg)
+        message := responses.InternalServerErrorHandler(w, r)
+		logger.Error(message)
         return
     }
 
-    msg := responses.OkHandler(w, r, jsonRecord)
-	logger.Info(msg)
+    message := responses.OkHandler(w, r, jsonRecord)
+	logger.Info(message)
 }
 
 func (h *PokemonHandler) ServeHTTP(w http.ResponseWriter, r *http.Request) {
 	switch {
 	case r.Method != http.MethodGet:
-		msg := responses.MethodNotAllowedHandler(w, r)
-		logging.Logger.Info(msg)
+		message := responses.MethodNotAllowedHandler(w, r)
+		logging.Logger.Info(message)
         return
     case r.Method == http.MethodGet && PokemonRe.MatchString(r.URL.Path):
         h.ListAllPokemon(w, r)
@@ -158,8 +158,8 @@ func (h *PokemonHandler) ServeHTTP(w http.ResponseWriter, r *http.Request) {
         h.GetPokemon(w, r)
         return
     default:
-		msg := responses.NotFoundHandler(w, r)
-		logging.Logger.Info(msg)
+		message := responses.NotFoundHandler(w, r)
+		logging.Logger.Info(message)
         return
     }
 }
