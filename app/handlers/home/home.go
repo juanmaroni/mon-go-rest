@@ -1,10 +1,14 @@
 package home
 
-import "net/http"
+import (
+	"mon-go-rest/config/logging"
+	"mon-go-rest/handlers/responses"
+	"net/http"
+)
 
 type HomeHandler struct {}
 
 func (h *HomeHandler) ServeHTTP(w http.ResponseWriter, r *http.Request) {
-	w.WriteHeader(http.StatusOK)
-	w.Write([]byte("PokéAPI Mini home page."))
+	message := responses.OkHandler(w, r, []byte("PokéAPI Mini home page."))
+	logging.Logger.Info(message)
 }

@@ -52,8 +52,8 @@ func (h *PokemonHandler) ListAllPokemon(w http.ResponseWriter, r *http.Request) 
         return
     }
 
-    w.WriteHeader(http.StatusOK)
-    w.Write(jsonRecords)
+	msg:= responses.OkHandler(w, r, jsonRecords)
+	logger.Info(msg)
 }
 
 func (h *PokemonHandler) ListAllPokemoByRegion(w http.ResponseWriter, r *http.Request) {
@@ -85,8 +85,8 @@ func (h *PokemonHandler) ListAllPokemoByRegion(w http.ResponseWriter, r *http.Re
         return
     }
 
-    w.WriteHeader(http.StatusOK)
-    w.Write(jsonRecords)
+    msg := responses.OkHandler(w, r, jsonRecords)
+	logger.Info(msg)
 }
 
 func (h *PokemonHandler) GetPokemon(w http.ResponseWriter, r *http.Request) {
@@ -138,8 +138,8 @@ func (h *PokemonHandler) GetPokemon(w http.ResponseWriter, r *http.Request) {
         return
     }
 
-    w.WriteHeader(http.StatusOK)
-    w.Write(jsonRecord)
+    msg := responses.OkHandler(w, r, jsonRecord)
+	logger.Info(msg)
 }
 
 func (h *PokemonHandler) ServeHTTP(w http.ResponseWriter, r *http.Request) {
