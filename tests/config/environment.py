@@ -6,7 +6,7 @@ class Environment:
         self.port = port
 
     def get_base_uri(self):
-        return f"{self.base_url}:{self.port}"
+        return f"http://{self.base_url}:{self.port}"
     
     def get_api_base_uri(self):
         return f"{self.get_base_uri()}{API_URI}"
