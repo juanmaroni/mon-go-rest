@@ -1,10 +1,11 @@
 from sys import exit, argv
 from config.logger import setup_logger
 from config.environment import Environment
+from requests_test.requests_test import get_homepage
 
 
 DEV = {
-    "base_url": "localhost",
+    "host": "localhost",
     "port": 3333
 }
 
@@ -12,7 +13,7 @@ PRO = {} # Placeholder
 
 
 def check_environment_parameters(env: dict):
-    return "base_url" in env and "port" in env and env["base_url"] and env["port"]
+    return "host" in env and "port" in env and env["host"] and env["port"]
 
 
 if __name__ == "__main__":
@@ -22,7 +23,6 @@ if __name__ == "__main__":
     logger.info(f"List of arguments: {args}")
     n_args = len(args)
 
-    
     if n_args != 1:
         logger.error("Incorrect number of arguments.")
         exit(1)
@@ -36,7 +36,9 @@ if __name__ == "__main__":
             logger.error("Check 'ENV' dict.")
             exit(1)
         
-        env = Environment(DEV["base_url"], DEV["port"])
+        env = Environment(DEV["host"], DEV["port"])
+        base_uri = env.get_base_uri()
+        api_uri = env.get_api_base_uri()
 
         # TODO: Call tests
         
@@ -47,7 +49,10 @@ if __name__ == "__main__":
             logger.error("Check 'PRO' dict.")
             exit(1)
         
-        env = Environment(PRO["base_url"], PRO["port"])
+        env = Environment(PRO["host"], PRO["port"])
+        base_uri = env.get_base_uri()
+        api_uri = env.get_api_base_uri()
+
         # TODO: Call tests
         
     else:
