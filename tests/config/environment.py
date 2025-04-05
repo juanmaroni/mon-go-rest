@@ -1,5 +1,6 @@
 API_URI = "/api/v1/pokemon"
 
+
 class Environment:
     def __init__(self, base_url, port):
         self.base_url = base_url

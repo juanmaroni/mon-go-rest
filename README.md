@@ -10,22 +10,25 @@ From "devops/dev" directory, run:
 docker compose --env-file .env.dev.compose -f docker-compose.dev.yml up --build -d 
 ```
 
-And check endpoints:
-```
-# Homepage
-curl http://localhost:3333/
+Check endpoints:
+* cURL:
+    ```
+    # Homepage
+    curl http://localhost:3333/
 
-# Get all
-curl http://localhost:3333/api/v1/pokemon
+    # Get all
+    curl http://localhost:3333/api/v1/pokemon
 
-# Get all by region
-curl http://localhost:3333/api/v1/pokemon/kanto
+    # Get all by region
+    curl http://localhost:3333/api/v1/pokemon/kanto
 
-# Get one by Pokédex number (id)
-curl http://localhost:3333/api/v1/pokemon/151
+    # Get one by Pokédex number (id)
+    curl http://localhost:3333/api/v1/pokemon/151
 
-# Errors
-curl http://localhost:3333/api/v1/pokemon/otnak
-curl http://localhost:3333/api/v1/pokemon/9999
-curl -X POST http://localhost:3333/api/v1/pokemon/9999
-```
+    # Errors
+    curl http://localhost:3333/api/v1/pokemon/otnak
+    curl http://localhost:3333/api/v1/pokemon/9999
+    curl -X POST http://localhost:3333/api/v1/pokemon/9999
+    ```
+
+* Run "tests/check_endpoints.py".
