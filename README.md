@@ -1,7 +1,8 @@
 # Mon-Go-REST
-![Go](https://img.shields.io/badge/Go-1.24.0-blue)
-![MongoDB](https://img.shields.io/badge/MongoDB-%5E7.0-green)
-![Docker](https://img.shields.io/badge/Docker-ready-blue)
+![Go](https://img.shields.io/badge/Go-1.24.0-blue?style=for-the-badge&logo=go&style=flat-square)
+![Python](https://img.shields.io/badge/Python-3.8-3670A0?style=for-the-badge&logo=python&logoColor=ffdd54&style=flat-square)
+![MongoDB](https://img.shields.io/badge/MongoDB-4.4-green?style=for-the-badge&logo=mongodb&style=flat-square)
+![Docker](https://img.shields.io/badge/Docker-ready-blue?style=for-the-badge&logo=docker&style=flat-square)
 
 This is a side project to learn how to design and serve REST API using Go standard library.
 Data is stored in MongoDB, initially imported with Python scripts and CSV files.
